@@ -2,6 +2,8 @@
 
 一个专门用于 Markdown 文档目录分析和处理的 Model Context Protocol (MCP) 服务器，为 TRAE IDE 提供强大的 Markdown 文档处理能力。
 
+可以先阅读 [**从零构建 MCP 服务：为 TRAE IDE 添加智能 Markdown TOC 处理能力**](./docs/blog-mcp-integration.md) 来了解背后的故事！
+
 ## 1. 功能说明
 
 | **功能模块**     | **主要特性**           | **详细说明**                  |
