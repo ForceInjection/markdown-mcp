@@ -1,0 +1,340 @@
+{
+  "mcpServers": {
+    "markdown-toc": {
+      "command": "/Users/wangtianqing/Project/mcp/markdown-mcp/start_mcp_for_trae.sh",
+      "args": [],
+      "description": "专门用于 Markdown 文档目录分析和处理的 MCP 服务器，提供 TOC 提取和编号分析功能",
+      "capabilities": [
+        "markdown_toc_extraction",
+        "numbering_analysis",
+        "toc_generation"
+      ],
+      "environment": {
+        "pythonVersion": "3.8+",
+        "virtualEnv": "auto-managed",
+        "dependencyManagement": "automatic",
+        "workingDirectory": "/Users/wangtianqing/Project/mcp/markdown-mcp"
+      },
+      "processManagement": {
+        "gracefulShutdown": true,
+        "shutdownTimeout": 10,
+        "signalHandling": ["SIGTERM", "SIGINT"],
+        "autoRestart": false,
+        "healthCheck": {
+          "enabled": true,
+          "interval": 30,
+          "timeout": 5
+        }
+      },
+      "security": {
+        "allowedDirectories": [
+          "/Users/wangtianqing/Project",
+          "/tmp",
+          "/var/tmp"
+        ],
+        "forbiddenDirectories": [
+          "/etc",
+          "/usr/bin",
+          "/usr/sbin", 
+          "/bin",
+          "/sbin",
+          "/root",
+          "/home",
+          "/System",
+          "/Library"
+        ],
+        "maxFileSize": "50MB",
+        "supportedExtensions": [".md", ".markdown"],
+        "processIsolation": true,
+        "resourceLimits": {
+          "maxMemory": "512MB",
+          "maxCpuPercent": 50
+        }
+      },
+      "timeout": 60,
+      "retries": 3,
+      "logging": {
+        "level": "INFO",
+        "file": "logs/markdown_toc_server.log",
+        "colorOutput": true,
+        "timestampFormat": "ISO8601",
+        "logRotation": {
+          "enabled": true,
+          "maxSize": "10MB",
+          "maxFiles": 5
+        }
+      },
+      "startup": {
+        "checkDependencies": true,
+        "validateEnvironment": true,
+        "createLogDirectory": true,
+        "waitForReady": 5
+      },
+      "shutdown": {
+        "script": "/Users/wangtianqing/Project/mcp/markdown-mcp/stop_mcp_for_trae.sh",
+        "gracefulTimeout": 10,
+        "forceKillTimeout": 5
+      }
+    }
+  },
+  "tools": {
+    "extract_markdown_toc": {
+      "description": "从 Markdown 文档中提取目录结构",
+      "parameters": {
+        "file_path": {
+          "type": "string",
+          "description": "Markdown 文件路径",
+          "required": true
+        },
+        "output_format": {
+          "type": "string",
+          "description": "输出格式 (json/text/markdown)",
+          "enum": ["json", "text", "markdown"],
+          "default": "json",
+          "required": false
+        },
+        "min_depth": {
+          "type": "integer",
+          "description": "最小标题深度",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 6,
+          "required": false
+        },
+        "max_depth": {
+          "type": "integer",
+          "description": "最大标题深度",
+          "default": 6,
+          "minimum": 1,
+          "maximum": 6,
+          "required": false
+        },
+        "include_line_numbers": {
+          "type": "boolean",
+          "description": "是否在结果中包含行号信息",
+          "default": false,
+          "required": false
+        }
+      },
+      "examples": [
+        {
+          "description": "提取文档目录结构",
+          "parameters": {
+            "file_path": "/path/to/document.md",
+            "output_format": "json",
+            "max_depth": 4
+          }
+        },
+        {
+          "description": "生成 Markdown 格式目录",
+          "parameters": {
+            "file_path": "/path/to/readme.md",
+            "output_format": "markdown"
+          }
+        },
+        {
+          "description": "提取指定深度范围的标题，包含行号",
+          "parameters": {
+            "file_path": "/path/to/document.md",
+            "min_depth": 2,
+            "max_depth": 4,
+            "include_line_numbers": true
+          }
+        }
+      ]
+    },
+    "analyze_numbering_issues": {
+      "description": "分析 Markdown 文档中的编号问题",
+      "parameters": {
+        "file_path": {
+          "type": "string",
+          "description": "Markdown 文件路径",
+          "required": true
+        },
+        "check_types": {
+          "type": "array",
+          "description": "要执行的检查类型",
+          "items": {
+            "type": "string",
+            "enum": ["duplicates", "discontinuous"]
+          },
+          "default": ["duplicates", "discontinuous"],
+          "required": false
+        }
+      },
+      "examples": [
+        {
+          "description": "分析文档编号问题",
+          "parameters": {
+            "file_path": "/path/to/document.md"
+          }
+        },
+        {
+          "description": "检查手册编号一致性",
+          "parameters": {
+            "file_path": "/path/to/manual.md"
+          }
+        },
+        {
+          "description": "只检查重复编号问题",
+          "parameters": {
+            "file_path": "/path/to/document.md",
+            "check_types": ["duplicates"]
+          }
+        },
+        {
+          "description": "只检查不连续编号问题",
+          "parameters": {
+            "file_path": "/path/to/document.md",
+            "check_types": ["discontinuous"]
+          }
+        }
+      ]
+    },
+    "generate_toc": {
+      "description": "生成格式化的 TOC 内容供插入文档",
+      "parameters": {
+        "file_path": {
+          "type": "string",
+          "description": "Markdown 文件路径",
+          "required": true
+        },
+        "format_type": {
+          "type": "string",
+          "description": "输出格式 (markdown/html/text)",
+          "enum": ["markdown", "html", "text"],
+          "default": "markdown",
+          "required": false
+        },
+        "include_links": {
+          "type": "boolean",
+          "description": "是否包含链接（仅对 markdown 格式有效）",
+          "default": true,
+          "required": false
+        },
+        "max_level": {
+          "type": "integer",
+          "description": "最大包含的标题级别",
+          "minimum": 1,
+          "maximum": 6,
+          "default": 6,
+          "required": false
+        }
+      },
+      "examples": [
+        {
+          "description": "生成 Markdown 格式 TOC",
+          "parameters": {
+            "file_path": "/path/to/document.md",
+            "format_type": "markdown",
+            "include_links": true
+          }
+        },
+        {
+          "description": "生成纯文本格式 TOC，限制最大级别",
+          "parameters": {
+            "file_path": "/path/to/manual.md",
+            "format_type": "text",
+            "max_level": 3
+          }
+        }
+      ]
+    }
+  },
+  "usage_examples": {
+    "basic_commands": [
+      "提取文档目录: extract_markdown_toc('/path/to/doc.md')",
+      "分析编号问题: analyze_numbering_issues('/path/to/doc.md')",
+      "生成 TOC 内容: generate_toc('/path/to/doc.md')"
+    ],
+    "advanced_usage": [
+      "完整文档分析流程: 1) extract_markdown_toc 提取目录结构，2) analyze_numbering_issues 分析编号问题，3) generate_toc 生成标准化 TOC",
+      "文档标准化: 使用 extract_markdown_toc 提取目录结构，检查编号格式一致性，然后用 generate_toc 生成规范的目录",
+      "TOC 插入: 使用 generate_toc 生成格式化的目录内容，可直接插入到文档中"
+    ]
+  },
+  "troubleshooting": {
+    "common_issues": [
+      {
+        "issue": "文件格式不支持",
+        "solution": "确保文件扩展名为 .md, .markdown"
+      },
+      {
+        "issue": "文件过大",
+        "solution": "检查文件大小是否超过 50MB 限制"
+      },
+      {
+        "issue": "目录访问被拒绝",
+        "solution": "确保文件路径在允许的目录范围内"
+      },
+      {
+        "issue": "编号分析结果不准确",
+        "solution": "确保标题使用标准的数字编号格式，如 '1.', '1.1', '2.1.1' 等"
+      }
+    ],
+    "startup_issues": [
+      {
+        "issue": "Python3 未找到",
+        "solution": "安装 Python 3.8 或更高版本，确保 python3 命令可用"
+      },
+      {
+        "issue": "虚拟环境创建失败",
+        "solution": "检查磁盘空间和权限，确保可以在项目目录创建 venv 文件夹"
+      },
+      {
+        "issue": "依赖安装失败",
+        "solution": "检查网络连接，确保可以访问 PyPI，或使用国内镜像源"
+      },
+      {
+        "issue": "MCP 服务器脚本不存在",
+        "solution": "确保 src/server/mcp_server.py 文件存在且可执行"
+      },
+      {
+        "issue": "权限被拒绝",
+        "solution": "确保启动脚本有执行权限：chmod +x start_mcp_for_trae.sh"
+      }
+    ],
+    "runtime_issues": [
+      {
+        "issue": "服务器无响应",
+        "solution": "检查进程是否运行：pgrep -f mcp_server.py，查看日志文件获取详细信息"
+      },
+      {
+        "issue": "内存使用过高",
+        "solution": "检查处理的文件大小，考虑分批处理大型文档"
+      },
+      {
+        "issue": "服务器意外退出",
+        "solution": "查看 logs/ 目录下的日志文件，检查错误信息"
+      }
+    ],
+    "shutdown_issues": [
+      {
+        "issue": "服务器无法正常停止",
+        "solution": "使用停止脚本：./stop_mcp_for_trae.sh，或手动终止进程"
+      },
+      {
+        "issue": "进程残留",
+        "solution": "使用 pgrep -f mcp_server.py 查找残留进程，用 kill -9 强制终止"
+      },
+      {
+        "issue": "停止脚本权限问题",
+        "solution": "确保停止脚本有执行权限：chmod +x stop_mcp_for_trae.sh"
+      }
+    ],
+    "environment_issues": [
+      {
+        "issue": "虚拟环境损坏",
+        "solution": "删除 venv 目录，重新运行启动脚本自动重建环境"
+      },
+      {
+        "issue": "依赖版本冲突",
+        "solution": "删除虚拟环境重建，或检查 requirements.txt 中的版本约束"
+      },
+      {
+        "issue": "日志目录创建失败",
+        "solution": "检查项目目录的写权限，手动创建 logs 目录"
+      }
+    ]
+  }
+}
