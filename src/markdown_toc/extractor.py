@@ -57,11 +57,8 @@ class MarkdownTOCExtractor:
         if min_depth > max_depth:
             raise ValueError("min_depth 不能大于 max_depth")
         
-        # 移除代码块中的内容，避免误识别
-        cleaned_content = self._remove_code_blocks(content)
-        
-        # 提取标题信息
-        headers = self._extract_headers(cleaned_content)
+        # 直接提取标题信息，不进行代码块清理
+        headers = self._extract_headers(content)
         
         # 按深度过滤
         filtered_headers = [
@@ -319,18 +316,28 @@ class MarkdownTOCExtractor:
         """移除代码块中的内容，但保留标题行"""
         lines = content.split('\n')
         result_lines = []
-        in_triple_backtick_block = False
+        in_code_block = False
         
         for line in lines:
             stripped_line = line.strip()
             
-            # 处理三重反引号代码块
+            # 处理代码块边界 - 支持多种代码块标记
+            # 三重反引号代码块 (```language)
             if stripped_line.startswith('```'):
-                in_triple_backtick_block = not in_triple_backtick_block
+                in_code_block = not in_code_block
+                # 保留代码块开始标记，以便后续行号对齐
+                result_lines.append('')  # 添加空行保持行号一致
+                continue
+            # 单行代码块标记 (text, scala, python 等单独一行)
+            elif stripped_line in ['text', 'scala', 'python', 'java', 'javascript', 'sql']:
+                in_code_block = not in_code_block
+                # 保留代码块开始标记，以便后续行号对齐
+                result_lines.append('')  # 添加空行保持行号一致
                 continue
             
             # 如果在代码块内，跳过
-            if in_triple_backtick_block:
+            if in_code_block:
+                result_lines.append('')  # 添加空行保持行号一致
                 continue
             
             # 检查是否是标题行，如果是标题行则保留原样
@@ -344,16 +351,34 @@ class MarkdownTOCExtractor:
         return '\n'.join(result_lines)
     
     def _extract_headers(self, content: str) -> List[Dict[str, Any]]:
-        """提取标题信息"""
+        """提取标题信息，跳过代码块内的内容"""
         headers = []
         lines = content.split('\n')
+        in_code_block = False
+        code_block_type = None
         
-        for line_num, line in enumerate(lines, 1):
-            # 匹配 Markdown 标题格式
-            match = re.match(r'^(#{1,6})\s+(.+)$', line.strip())
-            if match:
-                level = len(match.group(1))
-                title = match.group(2).strip()
+        for i, line in enumerate(lines, 1):
+            # 检查代码块边界
+            if line.strip().startswith('```'):
+                if not in_code_block:
+                    # 代码块开始 - 无论什么语言标识，都认为是代码块
+                    in_code_block = True
+                    code_block_type = line.strip()[3:].strip()
+                else:
+                    # 代码块结束
+                    in_code_block = False
+                    code_block_type = None
+                    continue
+            
+            # 如果在代码块中，跳过标题提取
+            if in_code_block:
+                continue
+            
+            # 提取标题
+            header_match = re.match(r'^(#{1,6})\s+(.+)$', line.strip())
+            if header_match:
+                level = len(header_match.group(1))
+                title = header_match.group(2).strip()
                 
                 # 清理标题文本
                 title = self._clean_title_text(title)
@@ -361,7 +386,7 @@ class MarkdownTOCExtractor:
                 headers.append({
                     'level': level,
                     'title': title,
-                    'line_number': line_num,
+                    'line_number': i,
                     'raw_line': line.strip()
                 })
         
@@ -479,6 +504,8 @@ class MarkdownTOCExtractor:
     
     def _clean_title_text(self, title: str) -> str:
         """清理标题文本中的 Markdown 格式"""
+        # 移除 Markdown 标题标记
+        title = re.sub(r'^#{1,6}\s+', '', title)
         # 移除粗体
         title = re.sub(r'\*\*(.*?)\*\*', r'\1', title)
         # 移除斜体

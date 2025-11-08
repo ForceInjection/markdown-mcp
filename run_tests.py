@@ -11,6 +11,7 @@
 5. 综合功能测试 (test_comprehensive.py)
 6. 参数一致性测试 (test_consistency.py)
 7. TOC 生成功能测试 (test_generate_toc.py)
+8. 章节提取功能测试 (test_chapter_extraction.py)
 
 使用方法：
     python run_tests.py [选项]
@@ -24,6 +25,7 @@
     --comprehensive 只运行综合测试
     --consistency   只运行参数一致性测试
     --generate-toc  只运行 TOC 生成功能测试
+    --chapter       只运行章节提取功能测试
     --verbose       详细输出
     --report        生成测试报告
 """
@@ -94,6 +96,7 @@ def main():
     parser.add_argument('--comprehensive', action='store_true', help='只运行综合测试')
     parser.add_argument('--consistency', action='store_true', help='只运行一致性测试')
     parser.add_argument('--generate-toc', action='store_true', help='只运行 TOC 生成功能测试')
+    parser.add_argument('--chapter', action='store_true', help='只运行章节提取功能测试')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细输出')
     parser.add_argument('--report', '-r', action='store_true', help='生成测试报告')
     
@@ -116,6 +119,8 @@ def main():
         test_files.append('test_consistency.py')
     elif getattr(args, 'generate_toc', False):
         test_files.append('test_generate_toc.py')
+    elif args.chapter:
+        test_files.append('test_chapter_extraction.py')
     else:
         # 默认运行所有测试
         test_files = [
@@ -125,7 +130,8 @@ def main():
             'test_yarn_integration.py',
             'test_comprehensive.py',
             'test_consistency.py',
-            'test_generate_toc.py'
+            'test_generate_toc.py',
+            'test_chapter_extraction.py'
         ]
     
     print("Markdown TOC 项目测试套件")
