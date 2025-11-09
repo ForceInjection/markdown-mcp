@@ -40,10 +40,31 @@ log_error() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="$SCRIPT_DIR/venv"
 REQUIREMENTS_FILE="$SCRIPT_DIR/requirements.txt"
-MCP_SERVER_SCRIPT="$SCRIPT_DIR/src/server/mcp_server.py"
 
-log_info "TRAE MCP Server 启动脚本开始执行..."
+# 默认服务器类型（toc 或 editor）
+SERVER_TYPE="${1:-toc}"
+
+# 根据服务器类型设置服务器脚本
+case "$SERVER_TYPE" in
+    "toc")
+        MCP_SERVER_SCRIPT="$SCRIPT_DIR/src/server/toc_mcp_server.py"
+        SERVER_NAME="Markdown TOC MCP Server"
+        ;;
+    "editor")
+        MCP_SERVER_SCRIPT="$SCRIPT_DIR/src/server/editor_mcp_server.py"
+        SERVER_NAME="Markdown Editor MCP Server"
+        ;;
+    *)
+        echo "用法: $0 [toc|editor]"
+        echo "  toc     - 启动 Markdown TOC MCP 服务器（默认）"
+        echo "  editor  - 启动 Markdown Editor MCP 服务器"
+        exit 1
+        ;;
+esac
+
+log_info "$SERVER_NAME 启动脚本开始执行..."
 log_info "项目目录: $SCRIPT_DIR"
+log_info "服务器类型: $SERVER_TYPE"
 
 # 切换到项目目录
 cd "$SCRIPT_DIR"
@@ -129,7 +150,7 @@ cleanup() {
 
 trap cleanup SIGTERM SIGINT
 
-log_success "环境检查完成，启动 MCP 服务器..."
+log_success "环境检查完成，启动 $SERVER_NAME..."
 log_info "服务器脚本: $MCP_SERVER_SCRIPT"
 log_info "日志目录: $LOG_DIR"
 log_info "使用 Ctrl+C 停止服务器"

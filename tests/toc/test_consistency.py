@@ -5,7 +5,7 @@
 
 本测试文件专门用于验证以下三个核心文件之间的参数一致性：
 1. extractor.py - 核心实现
-2. mcp_server.py - MCP 服务器接口
+2. toc_mcp_server.py - MCP 服务器接口
 3. trae_mcp_config.json - 工具配置
 
 测试内容：
@@ -22,9 +22,12 @@ import tempfile
 from pathlib import Path
 
 # 添加 src 目录到 Python 路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+# 添加 tests 目录到 Python 路径
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from markdown_toc.extractor import MarkdownTOCExtractor
+from test_config import TEST_CONFIG, get_test_file_path, get_report_file_path, ensure_directories
 
 
 class ConsistencyTester:
@@ -53,7 +56,7 @@ class ConsistencyTester:
     def load_config_file(self):
         """加载配置文件"""
         try:
-            config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'trae_mcp_config.json')
+            config_path = os.path.join(os.path.dirname(__file__), '..', '..', 'config', 'trae_mcp_config.json')
             with open(config_path, 'r', encoding='utf-8') as f:
                 return json.load(f)
         except Exception as e:

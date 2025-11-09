@@ -17,10 +17,19 @@ import sys
 import os
 
 # 添加 src 目录到 Python 路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from markdown_toc.extractor import MarkdownTOCExtractor, extract_toc_from_content, analyze_numbering_issues_from_headers, generate_toc_from_headers
-from test_config import TEST_CONFIG, get_report_file_path, ensure_directories
+
+# 动态导入 test_config，支持作为模块和独立脚本运行
+try:
+    from ..test_config import TEST_CONFIG, get_report_file_path, ensure_directories
+except ImportError:
+    # 作为独立脚本运行时，使用绝对导入
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from test_config import TEST_CONFIG, get_report_file_path, ensure_directories
 
 
 def test_toc_extraction():

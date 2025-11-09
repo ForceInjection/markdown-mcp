@@ -23,15 +23,17 @@ import unittest
 from pathlib import Path
 
 # 添加 src 目录到 Python 路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+# 添加 tests 目录到 Python 路径
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
+from test_config import TEST_CONFIG, get_report_file_path, ensure_directories
 from markdown_toc.extractor import (
     MarkdownTOCExtractor, 
     extract_toc_from_content, 
     analyze_numbering_issues_from_headers, 
     generate_toc_from_headers
 )
-from test_config import TEST_CONFIG, get_report_file_path, ensure_directories
 
 
 class TestEdgeCases(unittest.TestCase):

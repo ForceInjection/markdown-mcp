@@ -12,6 +12,7 @@ asyncio>=3.4.3
 
 # Markdown 处理依赖
 markdown>=3.4.0
+markdown-it-py>=2.2.0  # 强大的Markdown解析器，支持完整AST
 beautifulsoup4>=4.11.0
 lxml>=4.9.0
 

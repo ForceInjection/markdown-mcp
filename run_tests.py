@@ -3,29 +3,19 @@
 """
 统一测试运行脚本
 
-本脚本用于运行项目中的所有测试，包括：
-1. 核心功能测试 (test_extractor.py)
-2. 边界情况测试 (test_edge_cases.py)
-3. 服务器功能测试 (test_server.py)
-4. 集成测试 (test_yarn_integration.py)
-5. 综合功能测试 (test_comprehensive.py)
-6. 参数一致性测试 (test_consistency.py)
-7. TOC 生成功能测试 (test_generate_toc.py)
-8. 章节提取功能测试 (test_chapter_extraction.py)
+本脚本用于运行项目中的所有测试，支持新的目录结构：
+- tests/toc/        TOC 相关测试
+- tests/editor/     编辑器相关测试
+- tests/            其他通用测试
 
 使用方法：
     python run_tests.py [选项]
 
 选项：
     --all           运行所有测试 (默认)
-    --core          只运行核心功能测试
-    --edge          只运行边界情况测试
-    --server        只运行服务器测试
-    --integration   只运行集成测试
-    --comprehensive 只运行综合测试
-    --consistency   只运行参数一致性测试
-    --generate-toc  只运行 TOC 生成功能测试
-    --chapter       只运行章节提取功能测试
+    --toc           只运行 TOC 相关测试
+    --editor        只运行编辑器相关测试
+    --other         只运行其他通用测试
     --verbose       详细输出
     --report        生成测试报告
 """
@@ -43,9 +33,12 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'tests'))
 from test_config import TEST_CONFIG, get_report_file_path, ensure_directories
 
 
-def run_test_file(test_file, verbose=False):
+def run_test_file(test_file, subdir='', verbose=False):
     """运行单个测试文件"""
-    test_path = os.path.join('tests', test_file)
+    if subdir:
+        test_path = os.path.join('tests', subdir, test_file)
+    else:
+        test_path = os.path.join('tests', test_file)
     
     if not os.path.exists(test_path):
         print(f"⚠️ 测试文件不存在: {test_path}")
@@ -89,77 +82,97 @@ def main():
     """主函数"""
     parser = argparse.ArgumentParser(description='运行 Markdown TOC 项目测试')
     parser.add_argument('--all', action='store_true', default=True, help='运行所有测试')
-    parser.add_argument('--core', action='store_true', help='只运行核心功能测试')
-    parser.add_argument('--edge', action='store_true', help='只运行边界情况测试')
-    parser.add_argument('--server', action='store_true', help='只运行服务器测试')
-    parser.add_argument('--integration', action='store_true', help='只运行集成测试')
-    parser.add_argument('--comprehensive', action='store_true', help='只运行综合测试')
-    parser.add_argument('--consistency', action='store_true', help='只运行一致性测试')
-    parser.add_argument('--generate-toc', action='store_true', help='只运行 TOC 生成功能测试')
-    parser.add_argument('--chapter', action='store_true', help='只运行章节提取功能测试')
+    parser.add_argument('--toc', action='store_true', help='只运行 TOC 相关测试')
+    parser.add_argument('--editor', action='store_true', help='只运行编辑器相关测试')
+    parser.add_argument('--other', action='store_true', help='只运行其他通用测试')
     parser.add_argument('--verbose', '-v', action='store_true', help='详细输出')
     parser.add_argument('--report', '-r', action='store_true', help='生成测试报告')
     
     args = parser.parse_args()
     
     # 确定要运行的测试
-    test_files = []
+    test_groups = []
     
-    if args.core:
-        test_files.append('test_extractor.py')
-    elif args.edge:
-        test_files.append('test_edge_cases.py')
-    elif args.server:
-        test_files.append('test_server.py')
-    elif args.integration:
-        test_files.append('test_yarn_integration.py')
-    elif args.comprehensive:
-        test_files.append('test_comprehensive.py')
-    elif args.consistency:
-        test_files.append('test_consistency.py')
-    elif getattr(args, 'generate_toc', False):
-        test_files.append('test_generate_toc.py')
-    elif args.chapter:
-        test_files.append('test_chapter_extraction.py')
-    else:
-        # 默认运行所有测试
-        test_files = [
+    if args.toc:
+        test_groups.append(('toc', [
             'test_extractor.py',
-            'test_edge_cases.py',
-            'test_server.py',
-            'test_yarn_integration.py',
-            'test_comprehensive.py',
-            'test_consistency.py',
             'test_generate_toc.py',
             'test_chapter_extraction.py'
+        ]))
+    elif args.editor:
+        test_groups.append(('editor', [
+            'test_semantic_editor.py',
+            'test_complex_document_integration.py'
+        ]))
+        test_groups.append(('', [
+            'test_editor_mcp_server.py'  # 编辑器服务器测试位于根目录
+        ]))
+    elif args.other:
+        test_groups.append(('', [
+            'test_config.py',
+            'test_toc_mcp_server.py'
+        ]))
+    else:
+        # 默认运行所有测试
+        test_groups = [
+            ('toc', [
+                'test_extractor.py',
+                'test_generate_toc.py',
+                'test_chapter_extraction.py',
+                'test_comprehensive.py',
+                'test_consistency.py',
+                'test_edge_cases.py',
+                'test_yarn_integration.py'  # 移动到正确的 TOC 组
+            ]),
+            ('editor', [
+                'test_semantic_editor.py',
+                'test_complex_document_integration.py'
+            ]),
+            ('', [
+                'test_config.py',
+                'test_toc_mcp_server.py',    # 添加 TOC 服务器测试
+                'test_editor_mcp_server.py'  # 添加编辑器服务器测试
+            ])
         ]
+    
+    # 计算总测试文件数
+    total_test_files = sum(len(files) for _, files in test_groups)
     
     print("Markdown TOC 项目测试套件")
     print("=" * 50)
     print(f"运行时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-    print(f"测试文件数: {len(test_files)}")
+    print(f"测试组数: {len(test_groups)}")
+    print(f"测试文件数: {total_test_files}")
     print("=" * 50)
     
     # 运行测试
     results = {}
-    total_tests = len(test_files)
+    total_tests = 0
     passed_tests = 0
     failed_tests = 0
     total_duration = 0
     
-    for test_file in test_files:
-        success, details = run_test_file(test_file, args.verbose)
-        results[test_file] = {
-            'success': success,
-            'details': details
-        }
-        
-        if success:
-            passed_tests += 1
-            if isinstance(details, dict) and 'duration' in details:
-                total_duration += details['duration']
+    for subdir, test_files in test_groups:
+        if subdir:
+            print(f"\n📁 运行 {subdir.upper()} 测试组:")
         else:
-            failed_tests += 1
+            print(f"\n📁 运行通用测试组:")
+        
+        for test_file in test_files:
+            success, details = run_test_file(test_file, subdir, args.verbose)
+            results[test_file] = {
+                'success': success,
+                'details': details,
+                'group': subdir or 'general'
+            }
+            
+            total_tests += 1
+            if success:
+                passed_tests += 1
+                if isinstance(details, dict) and 'duration' in details:
+                    total_duration += details['duration']
+            else:
+                failed_tests += 1
     
     # 输出总结
     print("\n" + "=" * 50)

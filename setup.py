@@ -31,11 +31,11 @@ else:
     ]
 
 setup(
-    name="markdown-toc-mcp-server",
-    version="2.0.0",
+    name="markdown-mcp-servers",
+    version="0.1.0",
     author="TRAE AI Assistant",
     author_email="assistant@trae.ai",
-    description="Markdown TOC MCP Server - 专门用于 Markdown 文档目录分析和处理的 MCP 服务器，提供 TOC 提取、编号分析和生成 TOC 目录功能",
+    description="Markdown MCP Servers - 包含 Markdown TOC MCP Server 和 Markdown Editor MCP Server，提供完整的 Markdown 文档目录分析和语义编辑功能",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/trae-ai/markdown-toc-mcp-server",
@@ -76,8 +76,10 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "markdown-toc-mcp-server=mcp_server:main",
-            "start-markdown-toc-server=mcp_server:start_server",
+            "markdown-toc-mcp-server=server.toc_mcp_server:main",
+            "start-markdown-toc-server=server.toc_mcp_server:start_server",
+            "markdown-editor-mcp-server=server.editor_mcp_server:main",
+            "start-markdown-editor-server=server.editor_mcp_server:start_server",
         ],
     },
     include_package_data=True,
@@ -93,7 +95,10 @@ setup(
         "table-of-contents",
         "documentation",
         "analysis",
-        "numbering"
+        "numbering",
+        "editor",
+        "semantic-editing",
+        "structured-editing"
     ],
     project_urls={
         "Bug Reports": "https://github.com/ForceInjection/markdown-mcp/issues",

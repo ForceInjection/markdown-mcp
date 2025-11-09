@@ -6,9 +6,9 @@ Markdown TOC MCP Server
 专门为 Markdown 文档目录处理设计的 MCP 服务器，
 提供三大核心功能：
 
-1. TOC 提取 - 从 Markdown 内容中提取标题信息
-2. 编号分析 - 检测重复编号和不连续编号问题  
-3. TOC 生成 - 生成格式化的 TOC 内容供插入文档
+1. extract_markdown_toc - 提取 Markdown 文档的目录结构
+2. analyze_numbering_issues - 分析 Markdown 文档中的编号问题（重复、不连续等）
+3. generate_toc - 生成格式化的 TOC 内容
 """
 
 import asyncio
@@ -52,7 +52,7 @@ def setup_logging():
         root_logger.removeHandler(handler)
     
     # 文件日志处理器（轮转日志）
-    log_file = log_dir / "mcp_server.log"
+    log_file = log_dir / "toc_mcp_server.log"
     file_handler = logging.handlers.RotatingFileHandler(
         log_file,
         maxBytes=10 * 1024 * 1024,  # 10MB

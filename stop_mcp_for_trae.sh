@@ -30,17 +30,39 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-log_info "TRAE MCP Server 停止脚本开始执行..."
+# 默认服务器类型（toc 或 editor）
+SERVER_TYPE="${1:-toc}"
+
+# 根据服务器类型设置进程查找模式
+case "$SERVER_TYPE" in
+    "toc")
+        PROCESS_PATTERN="toc_mcp_server.py"
+        SERVER_NAME="Markdown TOC MCP Server"
+        ;;
+    "editor")
+        PROCESS_PATTERN="editor_mcp_server.py"
+        SERVER_NAME="Markdown Editor MCP Server"
+        ;;
+    *)
+        echo "用法: $0 [toc|editor]"
+        echo "  toc     - 停止 Markdown TOC MCP 服务器（默认）"
+        echo "  editor  - 停止 Markdown Editor MCP 服务器"
+        exit 1
+        ;;
+esac
+
+log_info "$SERVER_NAME 停止脚本开始执行..."
+log_info "服务器类型: $SERVER_TYPE"
 
 # 查找 MCP 服务器进程
-MCP_PIDS=$(pgrep -f "mcp_server.py" 2>/dev/null || true)
+MCP_PIDS=$(pgrep -f "$PROCESS_PATTERN" 2>/dev/null || true)
 
 if [ -z "$MCP_PIDS" ]; then
-    log_warning "未找到运行中的 MCP 服务器进程"
+    log_warning "未找到运行中的 $SERVER_NAME 进程"
     exit 0
 fi
 
-log_info "找到 MCP 服务器进程: $MCP_PIDS"
+log_info "找到 $SERVER_NAME 进程: $MCP_PIDS"
 
 # 优雅停止进程
 for PID in $MCP_PIDS; do
@@ -75,4 +97,4 @@ for PID in $MCP_PIDS; do
     fi
 done
 
-log_success "MCP 服务器停止脚本执行完成"
+log_success "$SERVER_NAME 停止脚本执行完成"

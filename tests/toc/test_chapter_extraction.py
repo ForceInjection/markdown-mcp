@@ -11,7 +11,7 @@ import sys
 import unittest
 
 # 添加 src 目录到 Python 路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
 
 from markdown_toc.extractor import MarkdownTOCExtractor
 
@@ -25,7 +25,7 @@ class TestChapterExtraction(unittest.TestCase):
         
         # Apache Spark 文档路径
         self.spark_doc_path = os.path.join(
-            os.path.dirname(__file__), 'fixtures', 'Apache Spark 设计与实现.md'
+            os.path.dirname(os.path.dirname(__file__)), 'fixtures', 'Apache Spark 设计与实现.md'
         )
         
         # 确保文档存在

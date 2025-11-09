@@ -1,6 +1,6 @@
 # 测试文档
 
-本文档描述了 Markdown TOC 项目的测试结构、测试用例和使用方法。
+本文档描述了 Markdown MCP Servers 项目的测试结构、测试用例和使用方法。
 
 ## 1. 测试结构
 
@@ -11,16 +11,28 @@ markdown-mcp/
 ├── tests/                          # 测试目录
 │   ├── __init__.py                 # 包初始化文件
 │   ├── test_config.py              # 测试配置文件
-│   ├── test_extractor.py           # 核心功能测试
-│   ├── test_edge_cases.py          # 边界情况测试
-│   ├── test_server.py              # 服务器功能测试
-│   ├── test_yarn_integration.py    # 集成测试
-│   ├── test_comprehensive.py       # 综合功能测试
+│   ├── test_extractor.py           # TOC 核心功能测试
+│   ├── test_edge_cases.py          # TOC 边界情况测试
+│   ├── test_server.py              # TOC 服务器功能测试
+│   ├── test_yarn_integration.py    # TOC 集成测试
+│   ├── test_comprehensive.py       # TOC 综合功能测试
 │   ├── test_generate_toc.py        # TOC 生成功能测试
-│   ├── test_consistency.py         # 参数一致性测试
+│   ├── test_consistency.py         # TOC 参数一致性测试
+│   ├── editor/                     # 编辑器测试目录
+│   │   ├── __init__.py
+│   │   ├── test_editor_mcp_server.py    # 编辑器服务器测试
+│   │   ├── test_semantic_editor.py      # 语义编辑功能测试
+│   │   ├── test_ast_parser.py           # AST 解析测试
+│   │   └── test_format_markdown.py      # Markdown 格式化测试
+│   ├── toc/                        # TOC 测试目录
+│   │   ├── __init__.py
+│   │   └── test_toc_mcp_server.py       # TOC 服务器测试
 │   └── fixtures/                   # 测试数据文件
-│       └── yarn.md                 # YARN 文档测试数据
+│       ├── yarn.md                 # YARN 文档测试数据
+│       └── sample_docs/           # 示例文档目录
 ├── run_tests.py                    # 统一测试运行脚本
+├── run_tests_toc.py                # TOC 专用测试脚本
+├── run_tests_editor.py             # 编辑器专用测试脚本
 └── docs/
     └── testing.md                  # 本文档
 ```
@@ -30,13 +42,18 @@ markdown-mcp/
 | 测试文件                   | 功能描述       | 测试内容                                                                  |
 | -------------------------- | -------------- | ------------------------------------------------------------------------- |
 | `test_config.py`           | 测试配置文件   | 测试环境配置参数、常量定义、路径配置、性能配置、测试数据                  |
-| `test_extractor.py`        | 核心功能测试   | TOC 提取、编号分析、TOC 生成、汉字编号识别、便利函数、has_issues 含义验证 |
-| `test_edge_cases.py`       | 边界情况测试   | 空文件、特殊字符、极大文件、格式错误、复杂嵌套、多语言混合、内存使用      |
-| `test_server.py`           | 服务器功能测试 | MCP 服务器的 TOC 提取、编号分析、详细编号分析、错误处理、性能测试         |
-| `test_yarn_integration.py` | 集成测试       | 基于 yarn.md 的复杂文档处理、中英文混合内容、代码块处理、性能测试         |
-| `test_comprehensive.py`    | 综合功能测试   | TOC 生成格式（Markdown、HTML、Text）、YARN 文档处理、健壮性、性能内存测试 |
+| `test_extractor.py`        | TOC 核心功能测试 | TOC 提取、编号分析、TOC 生成、汉字编号识别、便利函数、has_issues 含义验证 |
+| `test_edge_cases.py`       | TOC 边界情况测试 | 空文件、特殊字符、极大文件、格式错误、复杂嵌套、多语言混合、内存使用      |
+| `test_server.py`           | TOC 服务器功能测试 | MCP 服务器的 TOC 提取、编号分析、详细编号分析、错误处理、性能测试         |
+| `test_yarn_integration.py` | TOC 集成测试       | 基于 yarn.md 的复杂文档处理、中英文混合内容、代码块处理、性能测试         |
+| `test_comprehensive.py`    | TOC 综合功能测试   | TOC 生成格式（Markdown、HTML、Text）、YARN 文档处理、健壮性、性能内存测试 |
 | `test_generate_toc.py`     | TOC 生成测试   | 基本 TOC 生成、多格式输出、参数配置、性能测试、README 文件处理            |
-| `test_consistency.py`      | 参数一致性测试 | 核心文件间参数一致性、默认值一致性、类型定义一致性、配置文件一致性验证    |
+| `test_consistency.py`      | TOC 参数一致性测试 | 核心文件间参数一致性、默认值一致性、类型定义一致性、配置文件一致性验证    |
+| `test_editor_mcp_server.py` | 编辑器服务器测试 | MCP 服务器的语义编辑、文档转换、标题编辑、编号检查、文档分析功能测试      |
+| `test_semantic_editor.py`  | 语义编辑功能测试 | SIR 转换、语义编辑操作、标题重编号、章节插入、文档分析功能验证            |
+| `test_ast_parser.py`       | AST 解析测试    | Markdown AST 解析、节点操作、结构分析、格式转换功能测试                   |
+| `test_format_markdown.py`  | Markdown 格式化测试 | 文档格式化、缩进优化、行长度控制、格式一致性验证                         |
+| `test_toc_mcp_server.py`   | TOC 服务器测试  | TOC MCP 服务器的功能完整性、协议兼容性、错误处理测试                     |
 
 ---
 
@@ -124,18 +141,50 @@ markdown-mcp/
 - 中英文混合
 - 其他语言字符
 
-### 2.3 性能测试
+### 2.3 编辑器功能测试
 
-#### 2.3.1 性能指标
+#### 2.3.1 SIR 转换测试
 
-- **提取性能**：< 5.0 秒（6000+ 标题）
-- **分析性能**：< 2.0 秒
-- **生成性能**：< 3.0 秒
+- **目标**：验证结构化中间表示（SIR）转换功能
+- **测试内容**：
+  - Markdown 到 SIR 格式转换
+  - SIR 到 Markdown 格式转换
+  - 双向转换的一致性验证
+  - 复杂文档结构的保持
 
-#### 2.3.2 内存使用
+#### 2.3.2 语义编辑测试
+
+- **目标**：验证语义级别的编辑操作
+- **测试内容**：
+  - 标题编辑（文本修改、级别调整）
+  - 章节插入和移动
+  - 编号重排和检查
+  - 文档结构分析
+
+#### 2.3.3 AST 解析测试
+
+- **目标**：验证 Markdown AST 解析功能
+- **测试内容**：
+  - 语法树构建准确性
+  - 节点操作功能
+  - 结构分析和遍历
+  - 格式转换和优化
+
+### 2.4 性能测试
+
+#### 2.4.1 性能指标
+
+- **TOC 提取性能**：< 5.0 秒（6000+ 标题）
+- **TOC 分析性能**：< 2.0 秒
+- **TOC 生成性能**：< 3.0 秒
+- **SIR 转换性能**：< 2.0 秒（大型文档）
+- **语义编辑性能**：< 1.0 秒（单次操作）
+
+#### 2.4.2 内存使用
 
 - 大文档处理时的内存占用
 - 内存泄漏检测
+- 并发处理的内存管理
 
 ---
 
@@ -144,7 +193,7 @@ markdown-mcp/
 ### 3.1 运行所有测试
 
 ```bash
-# 运行所有测试（默认）
+# 运行所有测试（包括 TOC 和编辑器）
 python run_tests.py
 python run_tests.py --all
 
@@ -160,57 +209,69 @@ python run_tests.py --verbose --report
 python run_tests.py -v -r
 ```
 
-### 3.2 运行特定测试
+### 3.2 运行特定测试套件
 
 ```bash
-# 只运行核心功能测试
+# 只运行 TOC 核心功能测试
 python run_tests.py --core
+python run_tests_toc.py --core
 
-# 只运行边界情况测试
+# 只运行 TOC 边界情况测试
 python run_tests.py --edge
+python run_tests_toc.py --edge
 
-# 只运行服务器测试
+# 只运行 TOC 服务器测试
 python run_tests.py --server
+python run_tests_toc.py --server
 
-# 只运行集成测试
+# 只运行 TOC 集成测试
 python run_tests.py --integration
+python run_tests_toc.py --integration
 
-# 只运行综合测试
+# 只运行 TOC 综合测试
 python run_tests.py --comprehensive
+python run_tests_toc.py --comprehensive
 
-# 只运行参数一致性测试
+# 只运行 TOC 参数一致性测试
 python run_tests.py --consistency
+python run_tests_toc.py --consistency
 
 # 只运行 TOC 生成功能测试
 python run_tests.py --generate-toc
+python run_tests_toc.py --generate-toc
+
+# 只运行编辑器服务器测试
+python run_tests_editor.py --server
+
+# 只运行语义编辑功能测试
+python run_tests_editor.py --semantic
+
+# 只运行 AST 解析测试
+python run_tests_editor.py --ast
+
+# 只运行格式化测试
+python run_tests_editor.py --format
 ```
 
 ### 3.3 运行单个测试文件
 
 ```bash
-# 运行测试配置文件
+# TOC 相关测试
 python tests/test_config.py
-
-# 运行核心功能测试
 python tests/test_extractor.py
-
-# 运行边界情况测试
 python tests/test_edge_cases.py
-
-# 运行服务器功能测试
 python tests/test_server.py
-
-# 运行集成测试
 python tests/test_yarn_integration.py
-
-# 运行综合功能测试
 python tests/test_comprehensive.py
-
-# 运行 TOC 生成功能测试
 python tests/test_generate_toc.py
-
-# 运行参数一致性测试
 python tests/test_consistency.py
+python tests/toc/test_toc_mcp_server.py
+
+# 编辑器相关测试
+python tests/editor/test_editor_mcp_server.py
+python tests/editor/test_semantic_editor.py
+python tests/editor/test_ast_parser.py
+python tests/editor/test_format_markdown.py
 ```
 
 ---
@@ -233,12 +294,18 @@ python tests/test_consistency.py
 - Python 3.8+
 - 项目依赖包已安装（参考 `requirements.txt`）
 - 测试数据文件存在于 `tests/fixtures/` 目录
+- 编辑器功能需要额外的 Markdown 处理库支持
 
 ### 4.3 测试数据
 
 测试使用的数据文件位于 `tests/fixtures/` 目录：
 
 - `yarn.md`：复杂的真实文档，用于集成测试和综合功能验证
+- `sample_docs/`：示例文档目录，包含各种格式的 Markdown 文档
+  - `basic.md`：基础文档结构
+  - `complex_nested.md`：复杂嵌套结构
+  - `multilingual.md`：多语言混合内容
+  - `formatting_issues.md`：格式问题文档
 
 注：其他测试数据（如标准测试内容、重复编号内容等）直接定义在 `test_config.py` 的 `TEST_CONFIG["test_data"]` 中。
 

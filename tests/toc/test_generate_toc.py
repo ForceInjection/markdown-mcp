@@ -18,12 +18,31 @@ import json
 from datetime import datetime
 
 # 添加项目路径
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(project_root, 'src'))
 
 # 导入测试配置和核心模块
-from test_config import TEST_CONFIG, TEST_STATUS, get_report_file_path, ensure_directories, get_test_data
 from markdown_toc.extractor import MarkdownTOCExtractor
+
+# 动态导入 test_config，支持作为模块和独立脚本运行
+try:
+    from ..test_config import TEST_CONFIG, TEST_STATUS, get_report_file_path, ensure_directories, get_test_data
+except ImportError:
+    # 作为独立脚本运行时，使用绝对导入
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from test_config import TEST_CONFIG, TEST_STATUS, get_report_file_path, ensure_directories, get_test_data
+
+# 动态导入 test_config，支持作为模块和独立脚本运行
+try:
+    from ..test_config import TEST_CONFIG, TEST_STATUS, get_report_file_path, ensure_directories, get_test_data
+except ImportError:
+    # 作为独立脚本运行时，使用绝对导入
+    import sys
+    import os
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from test_config import TEST_CONFIG, TEST_STATUS, get_report_file_path, ensure_directories, get_test_data
 
 
 class TestGenerateTOC:

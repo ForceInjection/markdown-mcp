@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "markdown-editor": {
+      "command": "/Users/wangtianqing/Project/mcp/markdown-mcp/start_mcp_for_trae.sh",
+      "args": ["editor"]
+    }
+  }
+}

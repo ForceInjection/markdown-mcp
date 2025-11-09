@@ -15,7 +15,9 @@ import os
 import json
 
 # 添加 src 目录到 Python 路径
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+# 添加 tests 目录到 Python 路径
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from markdown_toc.extractor import MarkdownTOCExtractor
 from test_config import TEST_CONFIG, get_test_file_path, get_report_file_path, ensure_directories

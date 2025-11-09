@@ -184,6 +184,27 @@ def get_performance_limits():
 
 def get_test_data(key):
     """获取测试数据"""
+    # 首先尝试从文件中读取
+    file_mapping = {
+        "standard_content": "standard_content.md",
+        "duplicate_content": "duplicate_content.md",
+        "discontinuous_content": "discontinuous_content.md",
+        "chinese_content": "chinese_content.md",
+        "mixed_content": "mixed_content.md",
+        "special_chars_content": "special_chars_content.md",
+        "deep_nested_content": "deep_nested_content.md"
+    }
+    
+    if key in file_mapping:
+        file_path = get_test_file_path(file_mapping[key])
+        if os.path.exists(file_path):
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    return f.read()
+            except Exception as e:
+                print(f"Warning: Failed to read test data from {file_path}: {e}")
+    
+    # 如果文件不存在或读取失败，返回硬编码的备份数据
     return TEST_CONFIG["test_data"].get(key, "")
 
 

@@ -279,7 +279,7 @@ logging.handlers        # 轮转日志支持
 
 #### 3.2.2 服务器架构实现
 
-[MCP 服务器](../src/server/mcp_server.py)采用事件驱动的异步架构，通过装饰器模式注册工具处理器：
+[MCP 服务器](../src/server/toc_mcp_server.py)采用事件驱动的异步架构，通过装饰器模式注册工具处理器：
 
 ```python
 class MCPServer:
